@@ -1,6 +1,10 @@
 import pandas as pd
 from sklearn.base import clone
 from sklearn import neighbors
+from sklearn.calibration import LabelEncoder
+from sklearn.datasets import fetch_openml
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import StandardScaler
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,6 +30,39 @@ def preprocess_data(X, y):
 
 
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
+
+def fetch_and_prepare_dataset(dataset_id):
+    dataset = fetch_openml(data_id=dataset_id)
+    X = dataset.data
+    y = dataset.target
+    X, y = preprocess_data(X, y)
+    return X, y
+
+
+# Function to apply PCA and plot the result
+def apply_pca_and_plot_with_encoding(X, y):
+    # Encoding categorical target variables
+    label_encoder = LabelEncoder()
+    y_encoded = label_encoder.fit_transform(y)
+    
+    # Standardizing the data
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    # Applying PCA
+    pca = PCA(n_components=2)
+    principal_components = pca.fit_transform(X_scaled)
+    
+    # Plotting
+    plt.figure(figsize=(8, 6))
+    scatter = plt.scatter(principal_components[:, 0], principal_components[:, 1], c=y_encoded, cmap='viridis', alpha=0.5)
+    plt.xlabel('Principal Component 1')
+    plt.ylabel('Principal Component 2')
+    plt.title('2 Component PCA')
+    plt.colorbar(scatter)
+    plt.show()
+
+
 
 def draw_data(X, y, xn, xy):
     # Convert y to numeric values if it's not already
