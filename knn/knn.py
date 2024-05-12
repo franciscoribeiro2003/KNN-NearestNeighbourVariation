@@ -1,11 +1,9 @@
 # coding:utf-8
 
 from collections import Counter
-
 import numpy as np
 from scipy.spatial.distance import euclidean
-
-from base import BaseEstimator
+from base.base import BaseEstimator
 
 
 class KNNBase(BaseEstimator):
@@ -30,7 +28,7 @@ class KNNBase(BaseEstimator):
 
     def _predict(self, X=None):
         predictions = [self._predict_x(x) for x in X]
-
+        print(predictions)
         return np.array(predictions)
 
     def _predict_x(self, x):

@@ -1,85 +1,106 @@
 # coding:utf-8
 
 from collections import Counter
-
 import numpy as np
-from scipy.spatial.distance import euclidean
-
-# coding:utf-8
+from scipy.spatial.distance import euclidean, cityblock, cosine
+from base.base_modified import BaseEstimatorModified
+from collections import defaultdict
 from sklearn.neighbors import LocalOutlierFactor
 
+# class KNNBase(BaseEstimatorModified):
+#     def __init__(self, k=5, distance_func = None):
+#         """Base class for Nearest neighbors classifier and regressor.
 
-class BaseEstimator:
-    y_required = True
-    fit_required = True
+#         Parameters
+#         ----------
+#         k : int, default 5
+#             The number of neighbors to take into account. If 0, all the
+#             training examples are used.
+#         distance_func : function, default euclidean distance
+#             A distance function taking two arguments. Any function from
+#             scipy.spatial.distance will do.
+#         """
 
-    def _setup_input(self, X, y=None):
-        """Ensure inputs to an estimator are in the expected format.
+#         self.k = None if k == 0 else k  # l[:None] returns the whole list
+#         self.distance_func = distance_func
+#         self.distance = [euclidean]
 
-        Ensures X and y are stored as numpy ndarrays by converting from an
-        array-like object if necessary. Enables estimators to define whether
-        they require a set of y target values or not with y_required, e.g.
-        kmeans clustering requires no target labels and is fit against only X.
+#     def aggregate(self, neighbors_targets):
+#         raise NotImplementedError()
 
-        Parameters
-        ----------
-        X : array-like
-            Feature dataset.
-        y : array-like
-            Target values. By default is required, but if y_required = false
-            then may be omitted.
-        """
-        if not isinstance(X, np.ndarray):
-            X = np.array(X)
+#     def _predict(self, X=None):
+#         predictions = [self._predict_x(x) for x in X]
+#         predictions = [Counter(prediction).most_common(1)[0][0] for prediction in predictions]
+#         print(predictions)
+#         return np.array(predictions)
 
-        if X.size == 0:
-            raise ValueError("Got an empty matrix.")
+#     def _predict_x(self, x):
+#         """Predict the label of a single instance x."""
+#         prediction = []
+#         print("novo x")
+#         if self.distance_func is None:
+#             for k in self.distance:
 
-        if X.ndim == 1:
-            self.n_samples, self.n_features = 1, X.shape
-        else:
-            self.n_samples, self.n_features = X.shape[0], np.prod(X.shape[1:])
+#                 # compute distances between x and all examples in the training set.
+#                 distances = (k(x, example) for example in self.X)
 
-        lof = LocalOutlierFactor(n_neighbors=20, contamination=0.1)
-        lof.fit(X)
+#                 # Sort all examples by their distance to x and keep their target value.
+#                 neighbors = sorted(((dist, target,weigth) for (dist, target,weigth) in zip(distances, self.y, self.weigth)), key=lambda x: x[0])
+#                 # print("Neighbors with distance:", neighbors[: self.k])
+#                 # Get targets of the k-nn and aggregate them (most common one or
+#                 # average).
+#                 neighbors_targets = [(target,weigth) for (_, target, weigth) in neighbors[: self.k]]
+#                 prediction.append(self.aggregate(neighbors_targets))
+#         return prediction
 
-        lof_scores_train = lof.negative_outlier_factor_
-        lof_scores_train = (lof_scores_train - min(lof_scores_train)) / (max(lof_scores_train) - min(lof_scores_train))
-        #print(lof_scores_train)
 
-        self.X = X*lof_scores_train[:, np.newaxis]
+# class KNNClassifier(KNNBase):
+#     """Nearest neighbors classifier.
 
-        if self.y_required:
-            if y is None:
-                raise ValueError("Missed required argument y")
+#     Note: if there is a tie for the most common label among the neighbors, then
+#     the predicted label is arbitrary."""
 
-            if not isinstance(y, np.ndarray):
-                y = np.array(y)
+#     def aggregate(self, neighbors_targets):
+#         """Return the most common target label."""
+#         print("Neighbors_target:", neighbors_targets)
+        
+#         # Inicialize um defaultdict com valor float
+#         weighted_dict = defaultdict(float)
+#         # weight_sum = 0
+#         # Percorra os vizinhos e atualize o dicionário ponderado
+#         for target, weight in neighbors_targets:
+#             if weight != -1 :
+#                 weighted_dict[target] += weight
+#         #         weight_sum += 1
+            
+#         # for (target,_) in weighted_dict.items() :
+#         #     weighted_dict[target] /= weight_sum
+            
+#         print(weighted_dict.items())
+        
+#         weighted_dict = dict(weighted_dict)
+        
+#         max_target = max(weighted_dict.items(), key=lambda item: item[1])
 
-            if y.size == 0:
-                raise ValueError("The targets array must be no-empty.")
+#         # Desempacote a chave e o valor máximo
+#         max_target_key, max_target_value = max_target
+#         # print("target:", max_target_key)
+#         return max_target_key
 
-        self.y = y
 
-    def fit(self, X, y=None):
-        self._setup_input(X, y)
+# class KNNRegressor(KNNBase):
+#     """Nearest neighbors regressor."""
 
-    def predict(self, X=None):
-        #  print("-----")
-        if not isinstance(X, np.ndarray):
-            X = np.array(X)
+#     def aggregate(self, neighbors_targets):
+#         """Return the mean of all targets."""
 
-        if self.X is not None or not self.fit_required:
-            return self._predict(X)
-        else:
-            raise ValueError("You must call `fit` before `predict`")
+#         return np.mean(neighbors_targets)
 
-    def _predict(self, X=None):
-        raise NotImplementedError()
-    
 
-class KNNBase(BaseEstimator):
-    def __init__(self, k=5, distance_func=euclidean):
+# coding:utf-8
+
+class KNNBase(BaseEstimatorModified):
+    def __init__(self, k=5, distance_func = None):
         """Base class for Nearest neighbors classifier and regressor.
 
         Parameters
@@ -94,29 +115,39 @@ class KNNBase(BaseEstimator):
 
         self.k = None if k == 0 else k  # l[:None] returns the whole list
         self.distance_func = distance_func
+        self.distance = [euclidean, cityblock, cosine]
+        
 
     def aggregate(self, neighbors_targets):
         raise NotImplementedError()
 
     def _predict(self, X=None):
-        predictions = [self._predict_x(x) for x in X]
-
+        lof = LocalOutlierFactor(n_neighbors=20, algorithm='kd_tree')
+        train_weigth = lof.fit_predict(X)
+        # print(train_weigth)
+        
+        predictions = [self._predict_x(x,weigth) for x, weigth in zip(X,train_weigth)]
+        predictions = [Counter(prediction).most_common(1)[0][0] for prediction in predictions]
+        # print(predictions)
         return np.array(predictions)
 
-    def _predict_x(self, x):
+    def _predict_x(self, x, train_weigth):
         """Predict the label of a single instance x."""
+        prediction = []
+        if self.distance_func is None:
+            for k in self.distance:
 
-        # compute distances between x and all examples in the training set.
-        distances = (self.distance_func(x, example) for example in self.X)
+                # compute distances between x and all examples in the training set.
+                distances = (k(x, example) for example in self.X)
 
-        # Sort all examples by their distance to x and keep their target value.
-        neighbors = sorted(((dist, target) for (dist, target) in zip(distances, self.y)), key=lambda x: x[0])
-
-        # Get targets of the k-nn and aggregate them (most common one or
-        # average).
-        neighbors_targets = [target for (_, target) in neighbors[: self.k]]
-
-        return self.aggregate(neighbors_targets)
+                # Sort all examples by their distance to x and keep their target value.
+                neighbors = sorted(((dist, target,weigth) for (dist, target,weigth) in zip(distances, self.y, self.weigth)), key=lambda x: x[0])
+                # print("Neighbors with distance:", neighbors[: self.k])
+                # Get targets of the k-nn and aggregate them (most common one or
+                # average).
+                neighbors_targets = [(target,weigth) for (_, target, weigth) in neighbors[: self.k]]
+                prediction.append(self.aggregate(neighbors_targets,train_weigth))
+        return prediction
 
 
 class KNNClassifier(KNNBase):
@@ -125,11 +156,33 @@ class KNNClassifier(KNNBase):
     Note: if there is a tie for the most common label among the neighbors, then
     the predicted label is arbitrary."""
 
-    def aggregate(self, neighbors_targets):
+    def aggregate(self, neighbors_targets,train_weigth):
         """Return the most common target label."""
+        # print("Neighbors_target:", neighbors_targets)
+        
+        # Inicialize um defaultdict com valor float
+        weighted_dict = defaultdict(float)
+        # weight_sum = 0
+        # Percorra os vizinhos e atualize o dicionário ponderado
+        for target, weight in neighbors_targets:
+            weighted_dict[target] += weight
+            # weight_sum += weight
+        
+        # print(weighted_dict.items())
+        # for (target,_) in weighted_dict.items() :
+        #     weighted_dict[target] /= weight_sum
+            
+        weighted_dict = dict(weighted_dict)
 
-        most_common_label = Counter(neighbors_targets).most_common(1)[0][0]
-        return most_common_label
+        # 
+# if train_weigth == -1:
+        #     max_target = min(weighted_dict.items(), key=lambda item: item[1])
+        # else:
+        max_target = max(weighted_dict.items(), key=lambda item: item[1])
+        # Desempacote a chave e o valor máximo
+        max_target_key, max_target_value = max_target
+        # print("target:", max_target_key)
+        return max_target_key
 
 
 class KNNRegressor(KNNBase):

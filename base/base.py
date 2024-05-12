@@ -1,7 +1,6 @@
 # coding:utf-8
 import numpy as np
 
-
 class BaseEstimator:
     y_required = True
     fit_required = True
