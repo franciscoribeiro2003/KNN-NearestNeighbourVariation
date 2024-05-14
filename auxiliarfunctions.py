@@ -64,6 +64,70 @@ def apply_pca_and_plot_with_encoding(X, y,name):
     plt.title(f'Dataset: {name}')
     plt.colorbar(scatter)
     plt.show()
+    
+# import pandas as pd
+# from sklearn.base import clone
+# from sklearn import neighbors
+# from sklearn.calibration import LabelEncoder
+# from sklearn.datasets import fetch_openml
+# from sklearn.decomposition import PCA
+# from sklearn.discriminant_analysis import StandardScaler
+# from sklearn.inspection import permutation_importance
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import logging
+
+
+# def preprocess_data(X, y):
+#     # Convert categorical variables to dummy variables
+#     X = pd.get_dummies(X, drop_first=True)
+    
+#     # Convert bool columns to int
+#     X = X.astype({col: 'int' for col in X.select_dtypes(['bool']).columns})
+    
+#     # Convert y to numeric, turning non-numeric values into NaN
+
+#      # Map categorical labels to numerical values based on their categories
+#     label_map = {label: idx for idx, label in enumerate(y.cat.categories)}
+#     y_numeric = y.map(label_map)
+
+    
+#     return X, y_numeric
+
+
+
+# logging.getLogger('matplotlib').setLevel(logging.WARNING)
+
+# def fetch_and_prepare_dataset(dataset_id):
+#     dataset = fetch_openml(data_id=dataset_id)
+#     X = dataset.data
+#     y = dataset.target
+#     X, y = preprocess_data(X, y)
+#     return X, y
+
+
+# # Function to apply PCA and plot the result
+# def apply_pca_and_plot_with_encoding(X, y):
+#     # Encoding categorical target variables
+#     label_encoder = LabelEncoder()
+#     y_encoded = label_encoder.fit_transform(y)
+    
+#     # Standardizing the data
+#     scaler = StandardScaler()
+#     X_scaled = scaler.fit_transform(X)
+    
+#     # Applying PCA
+#     pca = PCA(n_components=2)
+#     principal_components = pca.fit_transform(X_scaled)
+    
+#     # Plotting
+#     plt.figure(figsize=(8, 6))
+#     scatter = plt.scatter(principal_components[:, 0], principal_components[:, 1], c=y_encoded, cmap='viridis', alpha=0.5)
+#     plt.xlabel('Principal Component 1')
+#     plt.ylabel('Principal Component 2')
+#     plt.title('2 Component PCA')
+#     plt.colorbar(scatter)
+#     plt.show()
 
 
 
