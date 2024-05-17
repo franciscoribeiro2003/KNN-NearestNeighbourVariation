@@ -10,6 +10,19 @@ import matplotlib.pyplot as plt
 #import numpy as np
 import logging
 
+def is_continuous(series):
+    """
+    Verifica se uma série de dados é contínua.
+    """
+    unique_values = series.nunique()
+    total_values = len(series)
+    
+    # Assumimos que se há muitos valores únicos, o dado é contínuo
+    # Aqui, 10% é um limiar arbitrário que pode ser ajustado
+    if unique_values / total_values > 0.1:
+        return True
+    else:
+        return False
 
 def preprocess_data(X, y):
     # Convert categorical variables to dummy variables
@@ -20,14 +33,19 @@ def preprocess_data(X, y):
 
     # Check if y is of type 'numeric'
     if pd.api.types.is_numeric_dtype(y):
-        y_numeric = y
-        
+        if is_continuous(y):
+            y = y.astype('category')
+            label_map = {label: idx for idx, label in enumerate(y.cat.categories)}
+            y_numeric = y.map(label_map)
+        else:
+            y_numeric = y
+    # Type categorical    
     else:
         try: 
             y_numeric =pd.to_numeric(y)
         except ValueError:
             label_map = {label: idx for idx, label in enumerate(y.cat.categories)}
-            y_numeric = y.map(label_map) 
+            y_numeric = y.map(label_map)
     
     return X, y_numeric
 
