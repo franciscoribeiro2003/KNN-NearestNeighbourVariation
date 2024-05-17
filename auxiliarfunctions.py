@@ -17,30 +17,22 @@ def preprocess_data(X, y):
     
     # Convert bool columns to int
     X = X.astype({col: 'int' for col in X.select_dtypes(['bool']).columns})
+
+    # Check if y is of type 'numeric'
+    if pd.api.types.is_numeric_dtype(y):
+        y_numeric = y
+        
+    else:
+        try: 
+            y_numeric =pd.to_numeric(y)
+        except ValueError:
+            label_map = {label: idx for idx, label in enumerate(y.cat.categories)}
+            y_numeric = y.map(label_map) 
     
-    # Convert y to numeric, turning non-numeric values into NaN
-
-    # Check if y is of type 'category', if not convert it
-    if not pd.api.types.is_categorical_dtype(y):
-        y = y.astype('category')
-
-    # Map categorical labels to numerical values based on their categories
-    label_map = {label: idx for idx, label in enumerate(y.cat.categories)}
-    y_numeric = y.map(label_map)
-
     return X, y_numeric
 
 
-
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
-
-def fetch_and_prepare_dataset(dataset_id):
-    dataset = fetch_openml(data_id=dataset_id)
-    X = dataset.data
-    y = dataset.target
-    X, y = preprocess_data(X, y)
-    return X, y
-
 
 # Function to apply PCA and plot the result
 def apply_pca_and_plot_with_encoding(X, y,name):
