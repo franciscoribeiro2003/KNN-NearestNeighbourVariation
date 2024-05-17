@@ -1,30 +1,121 @@
-import pandas as pd
-from sklearn.base import clone
-#from sklearn import neighbors
 from sklearn.calibration import LabelEncoder
 from sklearn.datasets import fetch_openml
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import StandardScaler
-#from sklearn.inspection import permutation_importance
+from IPython.display import display, HTML
+
 import matplotlib.pyplot as plt
-#import numpy as np
-import logging
+import pandas as pd
+import numpy as np
+
+
+def display_fetch_data(name, i):
+    ''' 
+        Fetch the data from the dataset with id i from openml, preprocess 
+        the data and display the data before and after processing
+
+        Parameters
+        ----------
+        - name: name of the dataset from openml
+        - i: id of dataset from openml
+
+        Return
+        ----------
+        return the data (X, y) from dataset i
+    '''
+    
+    dataset = fetch_openml(data_id = i)
+
+    X = dataset.data
+    y = dataset.target
+
+    data = X, y
+
+    print(f"Dataset: {name}")
+    
+    print(f"Before processing the dataset:")
+    table_data(data)
+    
+    X,y = preprocess_data(X, y)
+    data = X, y
+
+    print(f"After processing the dataset:")
+    table_data(data)
+    
+    return data
+
+
+def table_data(data):
+    '''
+        Display the first 5 rows of the dataset
+        
+        Parameters
+        ----------
+        - data: tuple (X, y) or DataFrame
+
+        Return
+        ----------
+        None
+    '''
+
+    # Verifica se data é uma tupla (X, y)
+    if isinstance(data, tuple) and len(data) == 2:
+        X, y = data
+        # Verifica se X e y são DataFrames ou Series e os transforma em DataFrame se necessário
+        if not isinstance(X, pd.DataFrame):
+            X = pd.DataFrame(X)
+        if not isinstance(y, pd.DataFrame):
+            y = pd.DataFrame(y)
+        # Concatena X e y
+        df = pd.concat([X, y], axis=1)
+    else:
+        # Se data não é uma tupla, assume que é um DataFrame único
+        df = pd.DataFrame(data)
+    # Exibe o nome do dataset
+    
+    display(HTML(df.head(5).to_html()))
+    print("\n")
+
 
 def is_continuous(series):
-    """
-    Verifica se uma série de dados é contínua.
-    """
+    '''
+        Check if the series is continuous or categorical
+
+        Parameters
+        ----------
+        - series: pd.Series
+            
+        Return  
+        ----------
+        - True if the series is continuous, False otherwise
+    '''
+
     unique_values = series.nunique()
     total_values = len(series)
     
-    # Assumimos que se há muitos valores únicos, o dado é contínuo
-    # Aqui, 10% é um limiar arbitrário que pode ser ajustado
+    # We assume that if there are many unique values, the data is continuous
+    # Here, 10% is an arbitrary threshold that can be adjustedtínuo
     if unique_values / total_values > 0.1:
         return True
     else:
         return False
 
+
 def preprocess_data(X, y):
+    '''
+        Preprocess the data by converting values to numeric and encoding categorical variables
+
+        Parameters
+        ----------
+        - X: pd.DataFrame
+        - y: pd.Series
+
+        Return
+        ----------
+        - X: pd.DataFrame
+        - y_numeric: pd.Series
+    '''
+
     # Convert categorical variables to dummy variables
     X = pd.get_dummies(X, drop_first=True)
     
@@ -39,6 +130,7 @@ def preprocess_data(X, y):
             y_numeric = y.map(label_map)
         else:
             y_numeric = y
+            
     # Type categorical    
     else:
         try: 
@@ -50,10 +142,21 @@ def preprocess_data(X, y):
     return X, y_numeric
 
 
-logging.getLogger('matplotlib').setLevel(logging.WARNING)
-
-# Function to apply PCA and plot the result
 def apply_pca_and_plot_with_encoding(X, y,name):
+    '''
+        Apply PCA to the data and plot the result 
+
+        Parameters
+        ----------
+        - X: pd.DataFrame
+        - y: pd.Series
+        - name: str
+
+        Return
+        ----------
+        None
+    '''
+
     # Encoding categorical target variables
     label_encoder = LabelEncoder()
     y_encoded = label_encoder.fit_transform(y)
@@ -72,142 +175,46 @@ def apply_pca_and_plot_with_encoding(X, y,name):
     plt.xlabel('Principal Component 1')
     plt.ylabel('Principal Component 2')
     plt.title(f'Dataset: {name}')
-    plt.colorbar(scatter)
     plt.show()
-    
-# import pandas as pd
-# from sklearn.base import clone
-# from sklearn import neighbors
-# from sklearn.calibration import LabelEncoder
-# from sklearn.datasets import fetch_openml
-# from sklearn.decomposition import PCA
-# from sklearn.discriminant_analysis import StandardScaler
-# from sklearn.inspection import permutation_importance
-# import matplotlib.pyplot as plt
-# import numpy as np
-# import logging
 
 
-# def preprocess_data(X, y):
-#     # Convert categorical variables to dummy variables
-#     X = pd.get_dummies(X, drop_first=True)
-    
-#     # Convert bool columns to int
-#     X = X.astype({col: 'int' for col in X.select_dtypes(['bool']).columns})
-    
-#     # Convert y to numeric, turning non-numeric values into NaN
+def plot_accuracies(datasets_names,list_accuracies):
+    '''
+        Showcase the accuracies for different datasets and KNN variants in a plot
 
-#      # Map categorical labels to numerical values based on their categories
-#     label_map = {label: idx for idx, label in enumerate(y.cat.categories)}
-#     y_numeric = y.map(label_map)
+        Parameters
+        ----------
+        - datasets_names: list of str
+        - knn_accuracies: list of float
+        - knn_isoforest_accuracies: list of float
+        - knn_lof_accuracies: list of float
+        - knn_isoforest_imp_accuracies: list of float
+        - knn_lof_imp_accuracies: list of float
 
-    
-#     return X, y_numeric
+        Return
+        ----------
+        None
+    '''
 
+    x = np.arange(len(datasets_names))  # the label locations
 
+    fig, ax = plt.subplots(figsize=(15, 8))
 
-# logging.getLogger('matplotlib').setLevel(logging.WARNING)
+    # Plotting the lines for each classifier
+    ax.plot(datasets_names, list_accuracies["KNN"], marker='o', label='KNN')
+    ax.plot(datasets_names, list_accuracies["KNN Modified with Isolation Forest without importance"], marker='o', label='KNN w/ Isolation Forest w/o importance')
+    ax.plot(datasets_names, list_accuracies["KNN Modified with Local Outlier Factor without importance"], marker='o', label='KNN w/ Local Outlier Factor w/o importance')
+    ax.plot(datasets_names, list_accuracies["KNN Modified with Isolation Forest"], marker='o', label='KNN w/ Isolation Forest')
+    ax.plot(datasets_names, list_accuracies["KNN Modified with Local Outlier Factor"], marker='o', label='KNN w/ Local Outlier Factor')
 
-# def fetch_and_prepare_dataset(dataset_id):
-#     dataset = fetch_openml(data_id=dataset_id)
-#     X = dataset.data
-#     y = dataset.target
-#     X, y = preprocess_data(X, y)
-#     return X, y
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_xlabel('Datasets')
+    ax.set_ylabel('Accuracy')
+    ax.set_title('Accuracy for Different Datasets and KNN Variants')
+    ax.set_xticks(x)
+    ax.set_xticklabels(datasets_names, rotation=45, ha="right")
+    ax.legend()
 
+    fig.tight_layout()
 
-# # Function to apply PCA and plot the result
-# def apply_pca_and_plot_with_encoding(X, y):
-#     # Encoding categorical target variables
-#     label_encoder = LabelEncoder()
-#     y_encoded = label_encoder.fit_transform(y)
-    
-#     # Standardizing the data
-#     scaler = StandardScaler()
-#     X_scaled = scaler.fit_transform(X)
-    
-#     # Applying PCA
-#     pca = PCA(n_components=2)
-#     principal_components = pca.fit_transform(X_scaled)
-    
-#     # Plotting
-#     plt.figure(figsize=(8, 6))
-#     scatter = plt.scatter(principal_components[:, 0], principal_components[:, 1], c=y_encoded, cmap='viridis', alpha=0.5)
-#     plt.xlabel('Principal Component 1')
-#     plt.ylabel('Principal Component 2')
-#     plt.title('2 Component PCA')
-#     plt.colorbar(scatter)
-#     plt.show()
-
-
-
-# def draw_data(X, y, xn, xy):
-#     # Convert y to numeric values if it's not already
-#     y = pd.to_numeric(y, errors='coerce')
-#     X = X.dropna(subset=[X.columns[xn], X.columns[xy]])
-
-#     # Create a 2D histogram
-#     plt.hist2d(X.iloc[:, xn], X.iloc[:, xy], bins=12, cmap='viridis')
-#     plt.title('Dataset Visualization')
-#     plt.xlabel(X.columns[xn])
-#     plt.ylabel(X.columns[xy])
-#     plt.colorbar(label='Count')
-#     plt.show()
-
-
-
-# def decision_plot_function(X, y, model1, xn=0, xy=1):
-#     # Ensure X is a NumPy array if it isn't already (in case it's a DataFrame)
-#     if isinstance(X, pd.DataFrame):
-#         X = X.to_numpy()
-
-#     # Fit the model on the selected features
-#     X_selected = X[:, [xn, xy]]
-    
-#     model = clone(model1)
-#     model.fit(X_selected, y)
-    
-#     # Create a mesh grid on which we will use model to predict class labels
-#     x_min, x_max = X_selected[:, 0].min() - 1, X_selected[:, 0].max() + 1
-#     y_min, y_max = X_selected[:, 1].min() - 1, X_selected[:, 1].max() + 1
-#     xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
-#                          np.arange(y_min, y_max, 0.1))
-    
-#     # Predict class labels for each point on the grid
-#     Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
-#     Z = Z.reshape(xx.shape)
-
-#     # Plot the contour and training points
-#     plt.figure(figsize=(8, 6))
-#     plt.contourf(xx, yy, Z, alpha=0.8)
-#     plt.scatter(X_selected[:, 0], X_selected[:, 1], c=y, edgecolors='k', marker='o', s=50)
-#     plt.xlabel(f'Feature {xn}')
-#     plt.ylabel(f'Feature {xy}')
-#     plt.title('Decision Boundary Plot')
-#     plt.show()
-
-# from sklearn.inspection import permutation_importance
-
-# def features_importance_plot(model, X, y, feature_names=None):
-#     # If feature names are not provided, use indices
-#     if feature_names is None:
-#         feature_names = np.arange(X.shape[1])
-
-#     # Convert X to DataFrame if it's a NumPy array
-#     if isinstance(X, np.ndarray):
-#         X = pd.DataFrame(X, columns=feature_names)
-
-#     # Get the feature importances from the model
-#     results = permutation_importance(model, X, y, scoring='accuracy')
-#     importances = results.importances_mean
-
-#     # Sort the feature importances in descending order
-#     indices = np.argsort(importances)[::-1]
-
-#     # Create a plot with the feature importances
-#     plt.figure(figsize=(8, 6))
-#     plt.bar(feature_names[indices], importances[indices], align='center')
-#     plt.xlabel('Feature')
-#     plt.ylabel('Feature Importance')
-#     plt.title('Feature Importances')
-#     plt.show()
+    plt.show()
