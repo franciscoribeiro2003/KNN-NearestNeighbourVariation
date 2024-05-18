@@ -8,24 +8,42 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-def display_accuracy_dataset(accuracy, models):
-    ''' 
-
-        Parameters
-        ----------
-        - accuracy: 
-        - models: 
-
-        Return
-        ----------
-        display 
+def display_accuracy_dataset(results, models_mapping):
     '''
-    plt.plot(accuracy)
-    plt.xlabel("Models")
-    plt.ylabel("Accuracy")
-    plt.title("Comparison of results")
-    plt.xticks(range(len(accuracy)), models, rotation='horizontal')
-    plt.show()
+    Display accuracy for each dataset across different models
+
+    Parameters
+    ----------
+    - results: pd.DataFrame
+        DataFrame with columns 'dataset', 'model', 'score'
+    - models_mapping: dict
+        Dictionary mapping short model names to full model names
+
+    Return
+    ----------
+    None
+    '''
+    
+    dataset_ids = results['dataset'].unique()
+    models_names = list(models_mapping.keys())
+
+    for dataset_id in dataset_ids:
+        dataset_results = results[results['dataset'] == dataset_id]
+        accuracies = []
+        for short_name, full_name in models_mapping.items():
+            try:
+                accuracies.append(dataset_results[dataset_results['model'] == full_name]['score'].values[0])
+            except IndexError:
+                accuracies.append(None)  # Handle the case where no matching model is found
+        
+        plt.figure(figsize=(10, 6))
+        plt.plot(models_names, accuracies, marker='o')
+        plt.xlabel("Models")
+        plt.ylabel("Accuracy")
+        plt.title(f"Comparison of results for dataset {dataset_id}")
+        plt.xticks(rotation='horizontal')
+        plt.show()
+
 
 def display_graphic_for_k(Ks, accuracy, classifiers_names_k):
     ''' 
@@ -221,43 +239,47 @@ def apply_pca_and_plot_with_encoding(X, y,name):
     plt.show()
 
 
-def plot_accuracies(datasets_names,list_accuracies):
+def plot_accuracies(ids, datasets_names, results):
     '''
-        Showcase the accuracies for different datasets and KNN variants in a plot
+    Showcase the accuracies for different datasets and KNN variants in a plot
 
-        Parameters
-        ----------
-        - datasets_names: list of str
-        - knn_accuracies: list of float
-        - knn_isoforest_accuracies: list of float
-        - knn_lof_accuracies: list of float
-        - knn_isoforest_imp_accuracies: list of float
-        - knn_lof_imp_accuracies: list of float
+    Parameters
+    ----------
+    - ids: list of int
+        List of dataset IDs corresponding to the datasets in the results DataFrame
+    - datasets_names: list of str
+        List of dataset names to be used as labels on the plot
+    - results: pd.DataFrame
+        DataFrame with columns 'dataset', 'model', 'score'
 
-        Return
-        ----------
-        None
+    Return
+    ----------
+    None
     '''
-
-    x = np.arange(len(datasets_names))  # the label locations
+    
+    models = [
+        "KNN",
+        "KNN Modified with Isolation Forest without importance",
+        "KNN Modified with Local Outlier Factor without importance",
+        "KNN Modified with Isolation Forest",
+        "KNN Modified with Local Outlier Factor"
+    ]
 
     fig, ax = plt.subplots(figsize=(15, 8))
 
     # Plotting the lines for each classifier
-    ax.plot(datasets_names, list_accuracies["KNN"], marker='o', label='KNN')
-    ax.plot(datasets_names, list_accuracies["KNN Modified with Isolation Forest without importance"], marker='o', label='KNN w/ Isolation Forest w/o importance')
-    ax.plot(datasets_names, list_accuracies["KNN Modified with Local Outlier Factor without importance"], marker='o', label='KNN w/ Local Outlier Factor w/o importance')
-    ax.plot(datasets_names, list_accuracies["KNN Modified with Isolation Forest"], marker='o', label='KNN w/ Isolation Forest')
-    ax.plot(datasets_names, list_accuracies["KNN Modified with Local Outlier Factor"], marker='o', label='KNN w/ Local Outlier Factor')
+    for model in models:
+        model_scores = results[results['model'] == model]
+        accuracies = [model_scores[model_scores['dataset'] == dataset]['score'].values[0] for dataset in ids]
+        ax.plot(datasets_names, accuracies, marker='o', label=model)
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_xlabel('Datasets')
     ax.set_ylabel('Accuracy')
     ax.set_title('Accuracy for Different Datasets and KNN Variants')
-    ax.set_xticks(x)
+    ax.set_xticks(np.arange(len(datasets_names)))
     ax.set_xticklabels(datasets_names, rotation=45, ha="right")
     ax.legend()
 
     fig.tight_layout()
-
     plt.show()
