@@ -8,6 +8,49 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+def display_accuracy_dataset(accuracy, models):
+    ''' 
+
+        Parameters
+        ----------
+        - accuracy: 
+        - models: 
+
+        Return
+        ----------
+        display 
+    '''
+    plt.plot(accuracy)
+    plt.xlabel("Models")
+    plt.ylabel("Accuracy")
+    plt.title("Comparison of results")
+    plt.xticks(range(len(accuracy)), models, rotation='horizontal')
+    plt.show()
+
+def display_graphic_for_k(Ks, accuracy, classifiers_names_k):
+    ''' 
+
+        Parameters
+        ----------
+        - Ks: Tested values of k
+        - accuracy: 
+        - models: 
+
+        Return
+        ----------
+        display 
+    '''
+    _, ax = plt.subplots()
+    for name in classifiers_names_k:
+        result = np.mean(accuracy[name][0:9]), np.mean(accuracy[name][10:19]) ,np.mean(accuracy[name][20:29])
+        ax.plot(Ks, result, label=name)
+
+    ax.set_xlabel('K')
+    ax.set_ylabel('Accuracy')
+    ax.set_title('Accuracy of Classifiers for Different K Values')
+    ax.set_xticks(Ks)
+    ax.legend()
+    plt.show()
 
 def display_fetch_data(name, i):
     ''' 

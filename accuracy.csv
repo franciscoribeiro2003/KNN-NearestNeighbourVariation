@@ -1,0 +1,51 @@
+dataset,model,score
+37,KNN,0.719958988380041
+37,KNN Modified with Isolation Forest without importance,0.7173786739576213
+37,KNN Modified with Local Outlier Factor without importance,0.719958988380041
+37,KNN Modified with Isolation Forest,0.7081681476418318
+37,KNN Modified with Local Outlier Factor,0.7120642515379357
+61,KNN,0.9600000000000002
+61,KNN Modified with Isolation Forest without importance,0.9600000000000002
+61,KNN Modified with Local Outlier Factor without importance,0.9600000000000002
+61,KNN Modified with Isolation Forest,0.9600000000000002
+61,KNN Modified with Local Outlier Factor,0.9600000000000002
+40983,KNN,0.9799556833153673
+40983,KNN Modified with Isolation Forest without importance,0.9799556833153673
+40983,KNN Modified with Local Outlier Factor without importance,0.9799556833153673
+40983,KNN Modified with Isolation Forest,0.9811953527368548
+40983,KNN Modified with Local Outlier Factor,0.9811953527368548
+44,KNN,0.8091728756012448
+44,KNN Modified with Isolation Forest without importance,0.8091728756012448
+44,KNN Modified with Local Outlier Factor without importance,0.8091728756012448
+44,KNN Modified with Isolation Forest,0.8161303404696785
+44,KNN Modified with Local Outlier Factor,0.8165651230783741
+59,KNN,0.8434126984126984
+59,KNN Modified with Isolation Forest without importance,0.8434126984126984
+59,KNN Modified with Local Outlier Factor without importance,0.8434126984126984
+59,KNN Modified with Isolation Forest,0.8464285714285713
+59,KNN Modified with Local Outlier Factor,0.8492063492063492
+458,KNN,0.9904761904761905
+458,KNN Modified with Isolation Forest without importance,0.9904761904761905
+458,KNN Modified with Local Outlier Factor without importance,0.9904761904761905
+458,KNN Modified with Isolation Forest,0.9904901960784315
+458,KNN Modified with Local Outlier Factor,0.9904901960784315
+187,KNN,0.7241830065359477
+187,KNN Modified with Isolation Forest without importance,0.6905228758169935
+187,KNN Modified with Local Outlier Factor without importance,0.7130718954248366
+187,KNN Modified with Isolation Forest,0.74640522875817
+187,KNN Modified with Local Outlier Factor,0.7578431372549019
+54,KNN,0.6430812324929972
+54,KNN Modified with Isolation Forest without importance,0.6347478991596638
+54,KNN Modified with Local Outlier Factor without importance,0.6395238095238096
+54,KNN Modified with Isolation Forest,0.6572268907563025
+54,KNN Modified with Local Outlier Factor,0.6572408963585434
+1464,KNN,0.761927927927928
+1464,KNN Modified with Isolation Forest without importance,0.761927927927928
+1464,KNN Modified with Local Outlier Factor without importance,0.761927927927928
+1464,KNN Modified with Isolation Forest,0.7606126126126126
+1464,KNN Modified with Local Outlier Factor,0.7633153153153153
+1491,KNN,0.765625
+1491,KNN Modified with Isolation Forest without importance,0.7500000000000001
+1491,KNN Modified with Local Outlier Factor without importance,0.7425
+1491,KNN Modified with Isolation Forest,0.76125
+1491,KNN Modified with Local Outlier Factor,0.758125
