@@ -50,13 +50,17 @@ def display_graphic_for_k(Ks, accuracy, classifiers_names_k):
 
         Parameters
         ----------
-        - Ks: Tested values of k
-        - accuracy: 
+        - Ks: 
+            Tested values of k
+        - accuracy: dict
+            Dictionary where keys are classifier names and values are lists of accuracy scores for different k values.
+        - classifiers_names_k: list
+            List of classifier names to be displayed in the plot.
         - models: 
 
         Return
         ----------
-        display 
+        None
     '''
     _, ax = plt.subplots()
     for name in classifiers_names_k:

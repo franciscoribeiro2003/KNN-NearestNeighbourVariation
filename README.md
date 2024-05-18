@@ -1,5 +1,16 @@
-# Nearest Neighbors Algorithm (KNN) variation
-In this notebook, is presented the results of a variation of KNN alghorigthm from https://github.com/rushter/MLAlgorithms.
+# Machine Learning I
+This is the repository for the first assignment of the 'Machine Learning I'  course, which focuses on implementing changes in a machine learning algorithm.
+
+The project is available on GitHub at the following link: [KNN-NearestNeighbourVariation](https://github.com/franciscoribeiro2003/KNN-NearestNeighbourVariation)
+
+Developed by:
+- [Beatriz Marques de Sá](https://github.com/beatrizmsa)
+- [Francisco Rafael Lima Ribeiro](https://github.com/franciscoribeiro2003)
+- [Marta Luísa Monteiro Pereira](https://github.com/martapereira0)
+
+
+## Nearest Neighbors Algorithm (KNN) variation
+In this notebook, is presented the results of a variation of KNN alghorigthm from [this github repository](https://github.com/rushter/MLAlgorithms).
 
 ## Goal of the work
 The purpose of this work was to:
@@ -26,6 +37,8 @@ Another modification we propose is to assign varying levels of importance to the
 - Loading and visualizing data;
 - KNN modifications;
 - Performing classifications and evaluations;
+- Choosing the best hyperparameter;
+- Results;
 
 ## Requirements
 - Python 3.6
