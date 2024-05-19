@@ -32,6 +32,8 @@ Our proposed solution to this KNN vulnerability is the assignment of a weight, d
 
 Another modification we propose is to assign varying levels of importance to the k nearest points to the new point during prediction. In other words, points closer to the new one will have a greater "vote" than those farther away.
 
+![](src/knnanimated.gif)
+
 ## Organization of the notebook
 - Importing libraries;
 - Loading and visualizing data;
